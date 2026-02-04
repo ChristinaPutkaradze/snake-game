@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Snake</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <div>
+          <h1>Snake</h1>
+          <p class="subtle">Classic grid-based snake</p>
+        </div>
+        <div class="score">
+          <span>Score</span>
+          <strong id="score">0</strong>
+        </div>
+      </header>
+
+      <section class="board">
+        <canvas id="canvas" width="400" height="400" aria-label="Snake game board"></canvas>
+        <div class="status" id="status" aria-live="polite"></div>
+      </section>
+
+      <section class="controls">
+        <button id="start" type="button">Start / Restart</button>
+        <button id="pause" type="button">Pause</button>
+      </section>
+
+      <section class="dpad" aria-label="On-screen controls">
+        <button data-dir="up" type="button">▲</button>
+        <div class="dpad-row">
+          <button data-dir="left" type="button">◀</button>
+          <button data-dir="down" type="button">▼</button>
+          <button data-dir="right" type="button">▶</button>
+        </div>
+      </section>
+
+      <footer class="help">
+        <span>Use Arrow Keys or WASD</span>
+        <span>Space = Pause</span>
+      </footer>
+    </main>
+
+    <script type="module" src="snake.js"></script>
+  </body>
+</html>
