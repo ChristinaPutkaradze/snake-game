@@ -236,6 +236,10 @@ function setup() {
   }
 
   function handleKey(e) {
+    const target = e.target;
+    if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) {
+      return;
+    }
     const key = e.key.toLowerCase();
     if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d", " "].includes(key)) {
       e.preventDefault();

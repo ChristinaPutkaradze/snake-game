@@ -1,36 +1,8 @@
-const fs = require("fs");
-const path = require("path");
+const { getPool, ensureSchema } = require("./db");
 
 const MAX_NAME_LENGTH = 24;
 const MAX_RESULTS = 50;
 const MAX_STORE = 200;
-
-function getStorePath() {
-  if (process.env.VERCEL) {
-    return path.join("/tmp", "scores.json");
-  }
-  return path.join(process.cwd(), "data", "scores.json");
-}
-
-function readScores() {
-  const filePath = getStorePath();
-  try {
-    const raw = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
-  } catch (err) {
-    return [];
-  }
-}
-
-function writeScores(scores) {
-  const filePath = getStorePath();
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(filePath, JSON.stringify(scores, null, 2), "utf8");
-}
 
 function normalizeName(name) {
   return name.replace(/[\r\n\t]/g, " ").trim().slice(0, MAX_NAME_LENGTH);
@@ -41,12 +13,23 @@ function respond(res, status, payload) {
   res.status(status).end(JSON.stringify(payload));
 }
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
+  try {
+    await ensureSchema();
+  } catch (err) {
+    return respond(res, 500, { error: "Database not configured" });
+  }
+
   if (req.method === "GET") {
-    const scores = readScores()
-      .sort((a, b) => b.score - a.score || a.createdAt.localeCompare(b.createdAt))
-      .slice(0, MAX_RESULTS);
-    return respond(res, 200, { scores });
+    const db = getPool();
+    const result = await db.query(
+      `SELECT name, score, created_at AS "createdAt"
+       FROM scores
+       ORDER BY score DESC, created_at ASC
+       LIMIT $1`,
+      [MAX_RESULTS]
+    );
+    return respond(res, 200, { scores: result.rows });
   }
 
   if (req.method === "POST") {
@@ -61,20 +44,32 @@ module.exports = (req, res) => {
     }
 
     const cleanScore = Math.max(0, Math.floor(score));
-    const scores = readScores();
-    scores.push({
-      name: cleanName,
-      score: cleanScore,
-      createdAt: new Date().toISOString(),
-    });
+    const db = getPool();
+    await db.query(
+      `INSERT INTO scores (name, score) VALUES ($1, $2)`,
+      [cleanName, cleanScore]
+    );
 
-    const trimmed = scores
-      .sort((a, b) => b.score - a.score || a.createdAt.localeCompare(b.createdAt))
-      .slice(0, MAX_STORE);
+    const cleanup = await db.query(
+      `DELETE FROM scores
+       WHERE id IN (
+         SELECT id FROM scores
+         ORDER BY score DESC, created_at ASC
+         OFFSET $1
+       )`,
+      [MAX_STORE]
+    );
+    void cleanup;
 
-    writeScores(trimmed);
+    const result = await db.query(
+      `SELECT name, score, created_at AS "createdAt"
+       FROM scores
+       ORDER BY score DESC, created_at ASC
+       LIMIT $1`,
+      [MAX_RESULTS]
+    );
 
-    return respond(res, 200, { ok: true, scores: trimmed.slice(0, MAX_RESULTS) });
+    return respond(res, 200, { ok: true, scores: result.rows });
   }
 
   res.setHeader("Allow", "GET, POST");

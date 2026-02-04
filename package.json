@@ -1,0 +1,9 @@
+{
+  "name": "snake-game",
+  "version": "1.0.0",
+  "description": "Classic Snake with leaderboard",
+  "type": "commonjs",
+  "dependencies": {
+    "pg": "^8.11.5"
+  }
+}

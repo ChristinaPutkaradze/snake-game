@@ -19,31 +19,37 @@
         </div>
       </header>
 
-      <section class="board">
-        <canvas id="canvas" width="400" height="400" aria-label="Snake game board"></canvas>
-        <div class="status" id="status" aria-live="polite"></div>
-      </section>
+      <section class="layout">
+        <div class="left-col">
+          <section class="board">
+            <canvas id="canvas" width="400" height="400" aria-label="Snake game board"></canvas>
+            <div class="status" id="status" aria-live="polite"></div>
+          </section>
 
-      <section class="controls">
-        <button id="start" type="button">Start / Restart</button>
-        <button id="pause" type="button">Pause</button>
-      </section>
-
-      <section class="submit">
-        <label for="player">Player name</label>
-        <div class="submit-row">
-          <input id="player" type="text" maxlength="24" placeholder="Your name" />
-          <button id="submit" type="button">Submit Score</button>
+          <section class="controls">
+            <button id="start" type="button">Start / Restart</button>
+            <button id="pause" type="button">Pause</button>
+          </section>
         </div>
-        <p class="subtle" id="submit-status"></p>
-      </section>
 
-      <section class="leaderboard">
-        <div class="leaderboard-header">
-          <h2>Leaderboard</h2>
-          <button id="refresh" type="button">Refresh</button>
+        <div class="right-col">
+          <section class="submit">
+            <label for="player">Player name</label>
+            <div class="submit-row">
+              <input id="player" type="text" maxlength="24" placeholder="Your name" />
+              <button id="submit" type="button">Submit Score</button>
+            </div>
+            <p class="subtle" id="submit-status"></p>
+          </section>
+
+          <section class="leaderboard">
+            <div class="leaderboard-header">
+              <h2>Leaderboard</h2>
+              <button id="refresh" type="button">Refresh</button>
+            </div>
+            <ol id="leaderboard-list"></ol>
+          </section>
         </div>
-        <ol id="leaderboard-list"></ol>
       </section>
 
       <section class="dpad" aria-label="On-screen controls">
