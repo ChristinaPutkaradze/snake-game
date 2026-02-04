@@ -7,9 +7,10 @@ function getPool() {
     if (!process.env.DATABASE_URL) {
       throw new Error("DATABASE_URL is not set");
     }
+    const needsSsl = /sslmode=(require|verify-full|verify-ca)/i.test(process.env.DATABASE_URL);
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined,
+      ssl: needsSsl ? { rejectUnauthorized: false } : undefined,
     });
   }
   return pool;
