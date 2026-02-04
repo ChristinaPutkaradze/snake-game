@@ -1,6 +1,7 @@
 const GRID_SIZE = 20;
 const CELL = 20;
 const TICK_MS = 120;
+const API_BASE = "";
 
 const DIRS = {
   up: { x: 0, y: -1 },
@@ -119,10 +120,16 @@ function setup() {
   const statusEl = document.getElementById("status");
   const startBtn = document.getElementById("start");
   const pauseBtn = document.getElementById("pause");
+  const submitBtn = document.getElementById("submit");
+  const refreshBtn = document.getElementById("refresh");
+  const playerInput = document.getElementById("player");
+  const submitStatus = document.getElementById("submit-status");
+  const leaderboardList = document.getElementById("leaderboard-list");
   const dpad = document.querySelector(".dpad");
 
   let state = createInitialState();
   let timer = null;
+  let lastSubmittedScore = null;
 
   function updateUI() {
     scoreEl.textContent = String(state.score);
@@ -135,6 +142,73 @@ function setup() {
     }
   }
 
+  function setSubmitStatus(message) {
+    submitStatus.textContent = message;
+  }
+
+  function renderLeaderboard(scores) {
+    leaderboardList.innerHTML = "";
+    if (!scores || scores.length === 0) {
+      const li = document.createElement("li");
+      li.textContent = "No scores yet";
+      leaderboardList.appendChild(li);
+      return;
+    }
+    scores.forEach((entry) => {
+      const li = document.createElement("li");
+      const name = document.createElement("span");
+      const score = document.createElement("span");
+      name.className = "name";
+      score.className = "score";
+      name.textContent = entry.name;
+      score.textContent = String(entry.score);
+      li.appendChild(name);
+      li.appendChild(score);
+      leaderboardList.appendChild(li);
+    });
+  }
+
+  async function fetchLeaderboard() {
+    try {
+      const res = await fetch(`${API_BASE}/api/scores`);
+      const data = await res.json();
+      renderLeaderboard(data.scores || []);
+      setSubmitStatus("");
+    } catch (err) {
+      renderLeaderboard([]);
+      setSubmitStatus("Leaderboard unavailable (is the API running?).");
+    }
+  }
+
+  async function submitScore() {
+    const name = playerInput.value.trim();
+    if (!name) {
+      setSubmitStatus("Please enter your name.");
+      return;
+    }
+    if (lastSubmittedScore === state.score && state.score !== 0) {
+      setSubmitStatus("Score already submitted.");
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/scores`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, score: state.score }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSubmitStatus(data.error || "Submit failed.");
+        return;
+      }
+      lastSubmittedScore = state.score;
+      renderLeaderboard(data.scores || []);
+      setSubmitStatus("Score submitted!");
+    } catch (err) {
+      setSubmitStatus("Submit failed (is the API running?).");
+    }
+  }
+
   function tick() {
     state = stepState(state);
     draw(ctx, state);
@@ -143,6 +217,7 @@ function setup() {
 
   function start() {
     state = createInitialState();
+    lastSubmittedScore = null;
     draw(ctx, state);
     updateUI();
     if (timer) clearInterval(timer);
@@ -180,6 +255,8 @@ function setup() {
   document.addEventListener("keydown", handleKey);
   startBtn.addEventListener("click", start);
   pauseBtn.addEventListener("click", togglePause);
+  submitBtn.addEventListener("click", submitScore);
+  refreshBtn.addEventListener("click", fetchLeaderboard);
 
   if (dpad) {
     dpad.addEventListener("click", (event) => {
@@ -190,6 +267,7 @@ function setup() {
   }
 
   start();
+  fetchLeaderboard();
 }
 
 setup();

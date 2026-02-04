@@ -29,6 +29,23 @@
         <button id="pause" type="button">Pause</button>
       </section>
 
+      <section class="submit">
+        <label for="player">Player name</label>
+        <div class="submit-row">
+          <input id="player" type="text" maxlength="24" placeholder="Your name" />
+          <button id="submit" type="button">Submit Score</button>
+        </div>
+        <p class="subtle" id="submit-status"></p>
+      </section>
+
+      <section class="leaderboard">
+        <div class="leaderboard-header">
+          <h2>Leaderboard</h2>
+          <button id="refresh" type="button">Refresh</button>
+        </div>
+        <ol id="leaderboard-list"></ol>
+      </section>
+
       <section class="dpad" aria-label="On-screen controls">
         <button data-dir="up" type="button">▲</button>
         <div class="dpad-row">

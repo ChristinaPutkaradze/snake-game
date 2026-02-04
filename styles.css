@@ -123,6 +123,71 @@ button:active {
   transform: translateY(1px);
 }
 
+.submit {
+  display: grid;
+  gap: 8px;
+}
+
+.submit label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.submit-row {
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+.leaderboard {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.leaderboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.leaderboard h2 {
+  font-size: 16px;
+}
+
+.leaderboard ol {
+  list-style: decimal;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.leaderboard li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.leaderboard .name {
+  font-weight: 600;
+}
+
+.leaderboard .score {
+  font-weight: 600;
+}
+
 .dpad {
   display: none;
   gap: 8px;
